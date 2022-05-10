@@ -145,11 +145,13 @@ def read_json(file_path):
         json_data = json.load(data_file)
 
         def node_key_func(x):
-            return int(x[3:])
+            ix=x.index('-')+1
+            return int(x[ix:])
         
         for key_wb, value_params in json_data.items():
             df = pd.json_normalize(value_params)
             df['ID'] = node_key_func(key_wb)
+            df['toID'] = df['toID'].apply(node_key_func)
             dfs.append(df)
     df_main = pd.concat(dfs, ignore_index=True)
 
