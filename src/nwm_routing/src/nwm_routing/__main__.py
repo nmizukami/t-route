@@ -442,6 +442,8 @@ def _run_everything_v02(
     # TODO: Remove below. --compute-method=V02-structured-obj did not work on command line
     # compute_func = fast_reach.compute_network_structured_obj
 
+    subnetwork_list = [None, None, None]
+
     results = compute_nhd_routing_v02(
         network.connections,
         network.reverse_network,
@@ -452,6 +454,7 @@ def _run_everything_v02(
         run_parameters.get("subnetwork_target_size", 1),
         # The default here might be the whole network or some percentage...
         run_parameters.get("cpu_pool", None),
+        run_parameters.get("t0"),
         run_parameters.get("dt"),
         run_parameters.get("nts", 1),
         run_parameters.get("qts_subdivisions", 1),
@@ -461,6 +464,10 @@ def _run_everything_v02(
         network.qlateral,
         data_assimilation.usgs_df,
         data_assimilation.last_obs,
+        pd.DataFrame(),  #tmp
+        pd.DataFrame(),  #tmp
+        pd.DataFrame(),  #tmp
+        pd.DataFrame(),  #tmp
         data_assimilation.asssimilation_parameters,
         run_parameters.get("assume_short_ts", False),
         run_parameters.get("return_courant", False),
@@ -468,7 +475,7 @@ def _run_everything_v02(
         waterbody_parameters,  # TODO: Can we remove the dependence on this input? It's like passing argv down into the compute kernel -- seems like we can strip out the specifically needed items.
         network.waterbody_types_dataframe,
         not network.waterbody_types_dataframe.index.empty,
-        diffusive_parameters,
+        subnetwork_list  #tmp
     )
 
     if verbose:
@@ -517,7 +524,7 @@ def _handle_output_v02(
         ).to_flat_index()
 
         flowveldepth = pd.concat(
-            [pd.DataFrame(r[1], index=r[0], columns=qvd_columns) for r in results],
+            [pd.DataFrame(r[1], index=r[0], columns=qvd_columns) for r in results[0]],
             copy=False,
         )
 
